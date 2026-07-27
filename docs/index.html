@@ -1,6 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <script>
+    (function () {
+      var PASS = "europa2026";
+      var key  = "ep_auth";
+      if (sessionStorage.getItem(key) !== "ok") {
+        var input = window.prompt("🔒 Ingresa el código de acceso:");
+        if (input === null || input.trim().toLowerCase() !== PASS) {
+          document.documentElement.innerHTML =
+            "<body style='background:#0f1117;color:#e8eaf0;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center'>" +
+            "<div><div style='font-size:3rem'>🔒</div><p style='margin-top:12px;color:#8b8fa8'>Código incorrecto. Recarga la página para intentar de nuevo.</p></div></body>";
+          return;
+        }
+        sessionStorage.setItem(key, "ok");
+      }
+    })();
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Europa 2026 ✈️</title>

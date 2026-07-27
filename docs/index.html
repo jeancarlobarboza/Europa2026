@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Europa 2026 ✈️</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --card: #21253a;
+      --border: #2e3350;
+      --text: #e8eaf0;
+      --muted: #8b8fa8;
+      --accent: #5b8dee;
+      --accent2: #e05c8a;
+      --green: #4cbb8a;
+      --yellow: #f5c842;
+      --font: -apple-system, "Segoe UI", system-ui, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #0d1b4b 0%, #1a1230 50%, #0f1117 100%);
+      padding: 60px 24px 48px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(91,141,238,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-flag { font-size: 2.8rem; letter-spacing: 6px; margin-bottom: 16px; }
+    .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; letter-spacing: -1px; }
+    .hero h1 span { color: var(--accent); }
+    .hero-subtitle { color: var(--muted); font-size: 1rem; margin-top: 8px; }
+    .hero-dates {
+      display: inline-flex; align-items: center; gap: 10px;
+      margin-top: 20px; padding: 8px 20px;
+      background: rgba(91,141,238,0.12); border: 1px solid rgba(91,141,238,0.3);
+      border-radius: 999px; font-size: 0.9rem; color: var(--accent);
+    }
+    .hero-dates span { color: var(--muted); font-size: 0.75rem; }
+    .hero-stats {
+      display: flex; justify-content: center; gap: 32px;
+      margin-top: 32px; flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-num { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
+    .stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ── NAV TABS ── */
+    .nav-wrap { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .nav { display: flex; overflow-x: auto; gap: 2px; padding: 0 16px; scrollbar-width: none; }
+    .nav::-webkit-scrollbar { display: none; }
+    .nav-btn {
+      flex-shrink: 0; padding: 12px 14px; font-size: 0.78rem; font-weight: 600;
+      color: var(--muted); background: none; border: none; cursor: pointer;
+      border-bottom: 2px solid transparent; transition: color .2s, border-color .2s;
+      white-space: nowrap; font-family: var(--font);
+    }
+    .nav-btn:hover { color: var(--text); }
+    .nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* ── MAIN ── */
+    .container { max-width: 780px; margin: 0 auto; padding: 32px 16px 80px; }
+
+    /* ── DAY CARD ── */
+    .day-section { display: none; }
+    .day-section.active { display: block; }
+
+    .day-header {
+      display: flex; align-items: flex-start; gap: 16px;
+      margin-bottom: 20px;
+    }
+    .day-badge {
+      flex-shrink: 0; width: 56px; height: 56px; border-radius: 14px;
+      background: var(--accent); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; line-height: 1;
+    }
+    .day-badge .num { font-size: 1.4rem; font-weight: 800; }
+    .day-badge .lbl { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+    .day-title { flex: 1; }
+    .day-title h2 { font-size: 1.4rem; font-weight: 700; }
+    .day-title .day-meta { color: var(--muted); font-size: 0.85rem; margin-top: 2px; }
+    .city-tag {
+      display: inline-block; padding: 2px 10px; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 600; margin-top: 6px;
+      background: rgba(91,141,238,0.15); color: var(--accent);
+      border: 1px solid rgba(91,141,238,0.3);
+    }
+
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px; margin-bottom: 14px;
+    }
+    .card-label {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.2px; color: var(--muted); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .card-label::before { content: ""; display: block; width: 3px; height: 12px; border-radius: 2px; background: var(--accent); }
+
+    .activity-list { list-style: none; }
+    .activity-list li {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .activity-list li:last-child { border-bottom: none; }
+    .activity-time { flex-shrink: 0; color: var(--muted); font-size: 0.78rem; width: 50px; padding-top: 1px; }
+    .activity-dot { flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-top: 6px; }
+    .activity-dot.green { background: var(--green); }
+    .activity-dot.yellow { background: var(--yellow); }
+    .activity-dot.pink { background: var(--accent2); }
+
+    .placeholder {
+      text-align: center; padding: 32px 16px; color: var(--muted);
+      font-size: 0.9rem; border: 1px dashed var(--border); border-radius: 12px;
+    }
+    .placeholder .icon { font-size: 2rem; margin-bottom: 8px; }
+
+    .transport-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 600;
+      background: rgba(76,187,138,0.12); color: var(--green);
+      border: 1px solid rgba(76,187,138,0.3);
+    }
+
+    .tip-box {
+      background: rgba(245,200,66,0.08); border: 1px solid rgba(245,200,66,0.25);
+      border-radius: 10px; padding: 12px 16px; font-size: 0.85rem; color: #d4b93a;
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .tip-box .tip-icon { flex-shrink: 0; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center; padding: 24px 16px;
+      border-top: 1px solid var(--border); color: var(--muted);
+      font-size: 0.78rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HERO ── -->
+<header class="hero">
+  <div class="hero-flag">🇪🇺 ✈️ 🗺️</div>
+  <h1>Europa <span>2026</span></h1>
+  <p class="hero-subtitle">El viaje que siempre quisimos hacer</p>
+  <div class="hero-dates">
+    <strong>29 ago</strong> <span>→</span> <strong>12 sep</strong>
+    <span>· 2026</span>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">15</div><div class="stat-label">días</div></div>
+    <div class="stat"><div class="stat-num">?</div><div class="stat-label">ciudades</div></div>
+    <div class="stat"><div class="stat-num">?</div><div class="stat-label">países</div></div>
+    <div class="stat"><div class="stat-num">∞</div><div class="stat-label">recuerdos</div></div>
+  </div>
+</header>
+
+<!-- ── NAV ── -->
+<nav class="nav-wrap">
+  <div class="nav" id="dayNav">
+    <button class="nav-btn active" onclick="showDay(0, this)">29 ago</button>
+    <button class="nav-btn" onclick="showDay(1, this)">30 ago</button>
+    <button class="nav-btn" onclick="showDay(2, this)">31 ago</button>
+    <button class="nav-btn" onclick="showDay(3, this)">1 sep</button>
+    <button class="nav-btn" onclick="showDay(4, this)">2 sep</button>
+    <button class="nav-btn" onclick="showDay(5, this)">3 sep</button>
+    <button class="nav-btn" onclick="showDay(6, this)">4 sep</button>
+    <button class="nav-btn" onclick="showDay(7, this)">5 sep</button>
+    <button class="nav-btn" onclick="showDay(8, this)">6 sep</button>
+    <button class="nav-btn" onclick="showDay(9, this)">7 sep</button>
+    <button class="nav-btn" onclick="showDay(10, this)">8 sep</button>
+    <button class="nav-btn" onclick="showDay(11, this)">9 sep</button>
+    <button class="nav-btn" onclick="showDay(12, this)">10 sep</button>
+    <button class="nav-btn" onclick="showDay(13, this)">11 sep</button>
+    <button class="nav-btn" onclick="showDay(14, this)">12 sep</button>
+  </div>
+</nav>
+
+<!-- ── CONTENT ── -->
+<main class="container">
+
+  <!-- DÍA 1 -->
+  <section class="day-section active" id="day-0">
+    <div class="day-header">
+      <div class="day-badge"><span class="num">1</span><span class="lbl">Día</span></div>
+      <div class="day-title">
+        <h2>¡Despegamos! ✈️</h2>
+        <div class="day-meta">Sábado, 29 de agosto · Viaje de salida</div>
+        <span class="city-tag">? → Europa</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Vuelo</div>
+      <div class="transport-badge">✈️ Vuelo de salida</div>
+      <div class="activity-list">
+        <ul class="activity-list">
+          <li><span class="activity-time">?:??</span><span class="activity-dot"></span>Salida desde el aeropuerto de origen</li>
+          <li><span class="activity-time">?:??</span><span class="activity-dot green"></span>Llegada a destino en Europa</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Plan del día</div>
+      <div class="placeholder">
+        <div class="icon">🗓️</div>
+        <p>Agrega el itinerario del día aquí.</p>
+      </div>
+    </div>
+
+    <div class="tip-box">
+      <span class="tip-icon">💡</span>
+      <span>Recuerda llevar documentos, adaptadores de corriente y el pasaporte a mano durante el vuelo.</span>
+    </div>
+  </section>
+
+  <!-- DÍA 2 -->
+  <section class="day-section" id="day-1">
+    <div class="day-header">
+      <div class="day-badge" style="background:var(--accent2)"><span class="num">2</span><span class="lbl">Día</span></div>
+      <div class="day-title">
+        <h2>Primer día en Europa 🌍</h2>
+        <div class="day-meta">Domingo, 30 de agosto</div>
+        <span class="city-tag">Ciudad 1</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Actividades</div>
+      <div class="placeholder"><div class="icon">📌</div><p>¿Qué haremos este día? Agrega el plan aquí.</p></div>
+    </div>
+  </section>
+
+  <!-- DÍA 3 -->
+  <section class="day-section" id="day-2">
+    <div class="day-header">
+      <div class="day-badge" style="background:#7c5cd8"><span class="num">3</span><span class="lbl">Día</span></div>
+      <div class="day-title">
+        <h2>Explorando 🏛️</h2>
+        <div class="day-meta">Lunes, 31 de agosto</div>
+        <span class="city-tag">Ciudad 1</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Actividades</div>
+      <div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div>
+    </div>
+  </section>
+
+  <!-- DÍA 4 -->
+  <section class="day-section" id="day-3">
+    <div class="day-header">
+      <div class="day-badge" style="background:var(--green)"><span class="num">4</span><span class="lbl">Día</span></div>
+      <div class="day-title">
+        <h2>Día 4 🌆</h2>
+        <div class="day-meta">Martes, 1 de septiembre</div>
+        <span class="city-tag">Ciudad ?</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Actividades</div>
+      <div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div>
+    </div>
+  </section>
+
+  <!-- DÍAS 5–14: placeholders rápidos -->
+  <section class="day-section" id="day-4"><div class="day-header"><div class="day-badge"><span class="num">5</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 5</h2><div class="day-meta">Miércoles, 2 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+
+  <section class="day-section" id="day-5"><div class="day-header"><div class="day-badge" style="background:var(--accent2)"><span class="num">6</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 6</h2><div class="day-meta">Jueves, 3 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+
+  <section class="day-section" id="day-6"><div class="day-header"><div class="day-badge" style="background:#7c5cd8"><span class="num">7</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 7</h2><div class="day-meta">Viernes, 4 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+
+  <section class="day-section" id="day-7"><div class="day-header"><div class="day-badge" style="background:var(--green)"><span class="num">8</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 8</h2><div class="day-meta">Sábado, 5 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+
+  <section class="day-section" id="day-8"><div class="day-header"><div class="day-badge"><span class="num">9</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 9</h2><div class="day-meta">Domingo, 6 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+
+  <section class="day-section" id="day-9"><div class="day-header"><div class="day-badge" style="background:var(--accent2)"><span class="num">10</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 10</h2><div class="day-meta">Lunes, 7 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+
+  <section class="day-section" id="day-10"><div class="day-header"><div class="day-badge" style="background:#7c5cd8"><span class="num">11</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 11</h2><div class="day-meta">Martes, 8 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+
+  <section class="day-section" id="day-11"><div class="day-header"><div class="day-badge" style="background:var(--green)"><span class="num">12</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 12</h2><div class="day-meta">Miércoles, 9 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+
+  <section class="day-section" id="day-12"><div class="day-header"><div class="day-badge"><span class="num">13</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 13</h2><div class="day-meta">Jueves, 10 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+
+  <section class="day-section" id="day-13"><div class="day-header"><div class="day-badge" style="background:var(--accent2)"><span class="num">14</span><span class="lbl">Día</span></div><div class="day-title"><h2>Penúltimo día 🌇</h2><div class="day-meta">Viernes, 11 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+
+  <!-- DÍA 15 -->
+  <section class="day-section" id="day-14">
+    <div class="day-header">
+      <div class="day-badge" style="background:#7c5cd8"><span class="num">15</span><span class="lbl">Día</span></div>
+      <div class="day-title">
+        <h2>Regreso a casa 🏠✈️</h2>
+        <div class="day-meta">Sábado, 12 de septiembre · Vuelta</div>
+        <span class="city-tag">Europa → Casa</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Vuelo de regreso</div>
+      <div class="transport-badge">✈️ Vuelo de regreso</div>
+      <ul class="activity-list" style="margin-top:12px">
+        <li><span class="activity-time">?:??</span><span class="activity-dot pink"></span>Salida del hotel, check-out</li>
+        <li><span class="activity-time">?:??</span><span class="activity-dot"></span>Traslado al aeropuerto</li>
+        <li><span class="activity-time">?:??</span><span class="activity-dot green"></span>¡De vuelta en casa! 🎉</li>
+      </ul>
+    </div>
+    <div class="tip-box">
+      <span class="tip-icon">💛</span>
+      <span>¡Fin del viaje! Recuerdos guardados para siempre.</span>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Europa 2026 · 29 ago – 12 sep · <strong>¡Buen viaje!</strong>
+</footer>
+
+<script>
+  function showDay(index, btn) {
+    document.querySelectorAll('.day-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('day-' + index).classList.add('active');
+    btn.classList.add('active');
+    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

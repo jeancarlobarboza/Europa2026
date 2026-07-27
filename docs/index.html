@@ -65,25 +65,25 @@
     .stat-num { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
     .stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
 
-    /* ── NAV TABS ── */
-    .nav-wrap { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-    .nav { display: flex; overflow-x: auto; gap: 2px; padding: 0 16px; scrollbar-width: none; }
-    .nav::-webkit-scrollbar { display: none; }
-    .nav-btn {
-      flex-shrink: 0; padding: 12px 14px; font-size: 0.78rem; font-weight: 600;
-      color: var(--muted); background: none; border: none; cursor: pointer;
-      border-bottom: 2px solid transparent; transition: color .2s, border-color .2s;
-      white-space: nowrap; font-family: var(--font);
-    }
-    .nav-btn:hover { color: var(--text); }
-    .nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-
     /* ── MAIN ── */
-    .container { max-width: 780px; margin: 0 auto; padding: 32px 16px 80px; }
+    .container { max-width: 780px; margin: 0 auto; padding: 40px 16px 80px; }
 
-    /* ── DAY CARD ── */
-    .day-section { display: none; }
-    .day-section.active { display: block; }
+    /* ── TIMELINE CONNECTOR ── */
+    .day-section {
+      position: relative;
+      padding-left: 28px;
+      margin-bottom: 48px;
+    }
+    .day-section::before {
+      content: "";
+      position: absolute;
+      left: 27px;
+      top: 68px;
+      bottom: -48px;
+      width: 2px;
+      background: var(--border);
+    }
+    .day-section:last-child::before { display: none; }
 
     .day-header {
       display: flex; align-items: flex-start; gap: 16px;
@@ -93,6 +93,7 @@
       flex-shrink: 0; width: 56px; height: 56px; border-radius: 14px;
       background: var(--accent); display: flex; flex-direction: column;
       align-items: center; justify-content: center; line-height: 1;
+      position: relative; z-index: 1;
     }
     .day-badge .num { font-size: 1.4rem; font-weight: 800; }
     .day-badge .lbl { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
@@ -105,6 +106,8 @@
       background: rgba(91,141,238,0.15); color: var(--accent);
       border: 1px solid rgba(91,141,238,0.3);
     }
+
+    .cards-wrap { margin-left: 72px; }
 
     .card {
       background: var(--card); border: 1px solid var(--border);
@@ -124,7 +127,7 @@
       font-size: 0.9rem;
     }
     .activity-list li:last-child { border-bottom: none; }
-    .activity-time { flex-shrink: 0; color: var(--muted); font-size: 0.78rem; width: 50px; padding-top: 1px; }
+    .activity-time { flex-shrink: 0; color: var(--muted); font-size: 0.78rem; width: 54px; padding-top: 1px; }
     .activity-dot { flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-top: 6px; }
     .activity-dot.green { background: var(--green); }
     .activity-dot.yellow { background: var(--yellow); }
@@ -146,7 +149,7 @@
     .tip-box {
       background: rgba(245,200,66,0.08); border: 1px solid rgba(245,200,66,0.25);
       border-radius: 10px; padding: 12px 16px; font-size: 0.85rem; color: #d4b93a;
-      display: flex; gap: 10px; align-items: flex-start;
+      display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px;
     }
     .tip-box .tip-icon { flex-shrink: 0; }
 
@@ -155,6 +158,12 @@
       text-align: center; padding: 24px 16px;
       border-top: 1px solid var(--border); color: var(--muted);
       font-size: 0.78rem;
+    }
+
+    @media (max-width: 520px) {
+      .day-section { padding-left: 0; }
+      .day-section::before { display: none; }
+      .cards-wrap { margin-left: 0; }
     }
   </style>
 </head>
@@ -177,149 +186,131 @@
   </div>
 </header>
 
-<!-- ── NAV ── -->
-<nav class="nav-wrap">
-  <div class="nav" id="dayNav">
-    <button class="nav-btn active" onclick="showDay(0, this)">29 ago</button>
-    <button class="nav-btn" onclick="showDay(1, this)">30 ago</button>
-    <button class="nav-btn" onclick="showDay(2, this)">31 ago</button>
-    <button class="nav-btn" onclick="showDay(3, this)">1 sep</button>
-    <button class="nav-btn" onclick="showDay(4, this)">2 sep</button>
-    <button class="nav-btn" onclick="showDay(5, this)">3 sep</button>
-    <button class="nav-btn" onclick="showDay(6, this)">4 sep</button>
-    <button class="nav-btn" onclick="showDay(7, this)">5 sep</button>
-    <button class="nav-btn" onclick="showDay(8, this)">6 sep</button>
-    <button class="nav-btn" onclick="showDay(9, this)">7 sep</button>
-    <button class="nav-btn" onclick="showDay(10, this)">8 sep</button>
-    <button class="nav-btn" onclick="showDay(11, this)">9 sep</button>
-    <button class="nav-btn" onclick="showDay(12, this)">10 sep</button>
-    <button class="nav-btn" onclick="showDay(13, this)">11 sep</button>
-    <button class="nav-btn" onclick="showDay(14, this)">12 sep</button>
-  </div>
-</nav>
-
 <!-- ── CONTENT ── -->
 <main class="container">
 
-  <!-- DÍA 1 -->
-  <section class="day-section active" id="day-0">
+  <!-- ═══════════════════════════════════════
+       DÍA 1 · 29 ago · SJO → MIA
+  ════════════════════════════════════════ -->
+  <section class="day-section" id="day-0">
     <div class="day-header">
       <div class="day-badge"><span class="num">1</span><span class="lbl">Día</span></div>
       <div class="day-title">
         <h2>¡Despegamos! ✈️</h2>
-        <div class="day-meta">Sábado, 29 de agosto · Viaje de salida</div>
-        <span class="city-tag">San José → Madrid</span>
+        <div class="day-meta">Sábado, 29 de agosto · Salida desde San José</div>
+        <span class="city-tag">San José → Miami</span>
       </div>
     </div>
+    <div class="cards-wrap">
 
-    <!-- Vuelo 1: SJO → MIA -->
-    <div class="card">
-      <div class="card-label">Vuelo 1 · IB4322 (Operado por AA)</div>
-      <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
-        <div class="transport-badge">✈️ IB4322</div>
-        <span style="font-size:0.8rem; color:var(--muted)">Reserva: <strong style="color:var(--text)">N7GVQ</strong></span>
-        <span style="font-size:0.8rem; color:var(--muted)">Equipaje: <strong style="color:var(--green)">1PC</strong></span>
+      <div class="card">
+        <div class="card-label">Vuelo IB4322 · San José → Miami (Operado por AA)</div>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
+          <div class="transport-badge">✈️ IB4322</div>
+          <span style="font-size:0.8rem; color:var(--muted)">Reserva: <strong style="color:var(--text)">N7GVQ</strong></span>
+          <span style="font-size:0.8rem; color:var(--muted)">Equipaje: <strong style="color:var(--green)">1PC</strong></span>
+        </div>
+        <ul class="activity-list">
+          <li>
+            <span class="activity-time">06:00</span>
+            <span class="activity-dot"></span>
+            <span>Salida · <a href="https://www.google.com/maps/place/Aeropuerto+Internacional+Juan+Santamaría/@9.9938,-84.2088,15z" target="_blank" style="color:var(--accent)">Aeropuerto Juan Santamaría, San José (SJO)</a> · Terminal M</span>
+          </li>
+          <li>
+            <span class="activity-time">11:04</span>
+            <span class="activity-dot green"></span>
+            <span>Llegada · <a href="https://www.google.com/maps/place/Miami+International+Airport/@25.7959,-80.2870,15z" target="_blank" style="color:var(--accent)">Aeropuerto Internacional de Miami (MIA)</a></span>
+          </li>
+        </ul>
       </div>
-      <ul class="activity-list">
-        <li>
-          <span class="activity-time">06:00</span>
-          <span class="activity-dot"></span>
-          <span>
-            Salida · <a href="https://www.google.com/maps/place/Aeropuerto+Internacional+Juan+Santamaría/@9.9938,-84.2088,15z" target="_blank" style="color:var(--accent)">Aeropuerto Juan Santamaría, San José (SJO)</a>
-            · Terminal M
-          </span>
-        </li>
-        <li>
-          <span class="activity-time">11:04</span>
-          <span class="activity-dot green"></span>
-          <span>
-            Llegada · <a href="https://www.google.com/maps/place/Miami+International+Airport/@25.7959,-80.2870,15z" target="_blank" style="color:var(--accent)">Aeropuerto Internacional de Miami (MIA)</a>
-          </span>
-        </li>
-      </ul>
-    </div>
 
-    <!-- Conexión en MIA -->
-    <div class="tip-box" style="margin-bottom:14px;">
-      <span class="tip-icon">🔁</span>
-      <span>Conexión en Miami (MIA) · Tiempo entre vuelos: ~8h 11min · Aprovechar para cenar y descansar en el aeropuerto.</span>
-    </div>
-
-    <!-- Vuelo 2: MIA → MAD -->
-    <div class="card">
-      <div class="card-label">Vuelo 2 · IB4610 (Operado por AA)</div>
-      <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
-        <div class="transport-badge">✈️ IB4610</div>
-        <span style="font-size:0.8rem; color:var(--muted)">Reserva: <strong style="color:var(--text)">N7GVQ</strong></span>
-        <span style="font-size:0.8rem; color:var(--muted)">Equipaje: <strong style="color:var(--green)">1PC</strong></span>
+      <div class="tip-box">
+        <span class="tip-icon">🔁</span>
+        <span>Conexión en Miami (MIA) · ~8h 11min de espera · Próximo vuelo sale a las 19:15 desde el mismo aeropuerto.</span>
       </div>
-      <ul class="activity-list">
-        <li>
-          <span class="activity-time">19:15</span>
-          <span class="activity-dot"></span>
-          <span>
-            Salida · <a href="https://www.google.com/maps/place/Miami+International+Airport/@25.7959,-80.2870,15z" target="_blank" style="color:var(--accent)">Aeropuerto Internacional de Miami (MIA)</a>
-          </span>
-        </li>
-        <li>
-          <span class="activity-time">+1 09:55</span>
-          <span class="activity-dot green"></span>
-          <span>
-            Llegada · <a href="https://www.google.com/maps/place/Aeropuerto+Adolfo+Suárez+Madrid-Barajas/@40.4983,-3.5676,15z" target="_blank" style="color:var(--accent)">Aeropuerto Adolfo Suárez Madrid-Barajas (MAD)</a>
-            · Terminal
-          </span>
-        </li>
-      </ul>
-    </div>
 
-    <!-- Pasajeros -->
-    <div class="card">
-      <div class="card-label">Pasajeros</div>
-      <ul class="activity-list">
-        <li><span class="activity-time"></span><span class="activity-dot"></span><span>Jean Carlo Barboza Jiménez · Ticket: 075-2537698482</span></li>
-        <li><span class="activity-time"></span><span class="activity-dot pink"></span><span>Silvana Hernández López · Ticket: 075-2537698483</span></li>
-      </ul>
-    </div>
+      <div class="card">
+        <div class="card-label">Pasajeros</div>
+        <ul class="activity-list">
+          <li><span class="activity-time"></span><span class="activity-dot"></span><span>Jean Carlo Barboza Jiménez · Ticket: 075-2537698482</span></li>
+          <li><span class="activity-time"></span><span class="activity-dot pink"></span><span>Silvana Hernández López · Ticket: 075-2537698483</span></li>
+        </ul>
+      </div>
 
-    <div class="tip-box">
-      <span class="tip-icon">💡</span>
-      <span>Llevar pasaporte, adaptadores de corriente europea (Tipo C/F) y el código de reserva <strong>N7GVQ</strong> a mano durante todo el trayecto.</span>
+      <div class="tip-box">
+        <span class="tip-icon">💡</span>
+        <span>Llevar pasaporte, adaptadores de corriente europea (Tipo C/F) y el código de reserva <strong>N7GVQ</strong> a mano durante todo el trayecto.</span>
+      </div>
+
     </div>
   </section>
 
-  <!-- DÍA 2 -->
+  <!-- ═══════════════════════════════════════
+       DÍA 2 · 30 ago · MIA → MAD · Llegada a España
+  ════════════════════════════════════════ -->
   <section class="day-section" id="day-1">
     <div class="day-header">
       <div class="day-badge" style="background:var(--accent2)"><span class="num">2</span><span class="lbl">Día</span></div>
       <div class="day-title">
-        <h2>Primer día en Europa 🌍</h2>
-        <div class="day-meta">Domingo, 30 de agosto</div>
-        <span class="city-tag">Ciudad 1</span>
+        <h2>¡Llegamos a España! 🇪🇸</h2>
+        <div class="day-meta">Domingo, 30 de agosto · Vuelo nocturno MIA → MAD</div>
+        <span class="city-tag">Miami → Madrid</span>
       </div>
     </div>
-    <div class="card">
-      <div class="card-label">Actividades</div>
-      <div class="placeholder"><div class="icon">📌</div><p>¿Qué haremos este día? Agrega el plan aquí.</p></div>
+    <div class="cards-wrap">
+
+      <div class="card">
+        <div class="card-label">Vuelo IB4610 · Miami → Madrid (Operado por AA)</div>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
+          <div class="transport-badge">✈️ IB4610</div>
+          <span style="font-size:0.8rem; color:var(--muted)">Reserva: <strong style="color:var(--text)">N7GVQ</strong></span>
+          <span style="font-size:0.8rem; color:var(--muted)">Equipaje: <strong style="color:var(--green)">1PC</strong></span>
+        </div>
+        <ul class="activity-list">
+          <li>
+            <span class="activity-time">29 ago</span>
+            <span class="activity-dot"></span>
+            <span>Salida 19:15 · <a href="https://www.google.com/maps/place/Miami+International+Airport/@25.7959,-80.2870,15z" target="_blank" style="color:var(--accent)">Aeropuerto Internacional de Miami (MIA)</a></span>
+          </li>
+          <li>
+            <span class="activity-time">09:55</span>
+            <span class="activity-dot green"></span>
+            <span>Llegada · <a href="https://www.google.com/maps/place/Aeropuerto+Adolfo+Suárez+Madrid-Barajas/@40.4983,-3.5676,15z" target="_blank" style="color:var(--accent)">Aeropuerto Adolfo Suárez Madrid-Barajas (MAD)</a> · Terminal</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Plan del día — Primer día en Madrid</div>
+        <div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí: hotel, descanso, primer paseo por Madrid.</p></div>
+      </div>
+
     </div>
   </section>
 
-  <!-- DÍA 3 -->
+  <!-- ═══════════════════════════════════════
+       DÍA 3 · 31 ago
+  ════════════════════════════════════════ -->
   <section class="day-section" id="day-2">
     <div class="day-header">
       <div class="day-badge" style="background:#7c5cd8"><span class="num">3</span><span class="lbl">Día</span></div>
       <div class="day-title">
         <h2>Explorando 🏛️</h2>
         <div class="day-meta">Lunes, 31 de agosto</div>
-        <span class="city-tag">Ciudad 1</span>
+        <span class="city-tag">Ciudad ?</span>
       </div>
     </div>
-    <div class="card">
-      <div class="card-label">Actividades</div>
-      <div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div>
+    <div class="cards-wrap">
+      <div class="card">
+        <div class="card-label">Actividades</div>
+        <div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div>
+      </div>
     </div>
   </section>
 
-  <!-- DÍA 4 -->
+  <!-- ═══════════════════════════════════════
+       DÍA 4 · 1 sep
+  ════════════════════════════════════════ -->
   <section class="day-section" id="day-3">
     <div class="day-header">
       <div class="day-badge" style="background:var(--green)"><span class="num">4</span><span class="lbl">Día</span></div>
@@ -329,89 +320,177 @@
         <span class="city-tag">Ciudad ?</span>
       </div>
     </div>
-    <div class="card">
-      <div class="card-label">Actividades</div>
-      <div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div>
+    <div class="cards-wrap">
+      <div class="card">
+        <div class="card-label">Actividades</div>
+        <div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div>
+      </div>
     </div>
   </section>
 
-  <!-- DÍAS 5–14: placeholders rápidos -->
-  <section class="day-section" id="day-4"><div class="day-header"><div class="day-badge"><span class="num">5</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 5</h2><div class="day-meta">Miércoles, 2 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+  <!-- ═══════════════════════════════════════
+       DÍA 5 · 2 sep
+  ════════════════════════════════════════ -->
+  <section class="day-section" id="day-4">
+    <div class="day-header">
+      <div class="day-badge"><span class="num">5</span><span class="lbl">Día</span></div>
+      <div class="day-title"><h2>Día 5</h2><div class="day-meta">Miércoles, 2 de septiembre</div><span class="city-tag">Ciudad ?</span></div>
+    </div>
+    <div class="cards-wrap"><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></div>
+  </section>
 
-  <section class="day-section" id="day-5"><div class="day-header"><div class="day-badge" style="background:var(--accent2)"><span class="num">6</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 6</h2><div class="day-meta">Jueves, 3 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+  <!-- ═══════════════════════════════════════
+       DÍA 6 · 3 sep
+  ════════════════════════════════════════ -->
+  <section class="day-section" id="day-5">
+    <div class="day-header">
+      <div class="day-badge" style="background:var(--accent2)"><span class="num">6</span><span class="lbl">Día</span></div>
+      <div class="day-title"><h2>Día 6</h2><div class="day-meta">Jueves, 3 de septiembre</div><span class="city-tag">Ciudad ?</span></div>
+    </div>
+    <div class="cards-wrap"><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></div>
+  </section>
 
-  <section class="day-section" id="day-6"><div class="day-header"><div class="day-badge" style="background:#7c5cd8"><span class="num">7</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 7</h2><div class="day-meta">Viernes, 4 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+  <!-- ═══════════════════════════════════════
+       DÍA 7 · 4 sep
+  ════════════════════════════════════════ -->
+  <section class="day-section" id="day-6">
+    <div class="day-header">
+      <div class="day-badge" style="background:#7c5cd8"><span class="num">7</span><span class="lbl">Día</span></div>
+      <div class="day-title"><h2>Día 7</h2><div class="day-meta">Viernes, 4 de septiembre</div><span class="city-tag">Ciudad ?</span></div>
+    </div>
+    <div class="cards-wrap"><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></div>
+  </section>
 
-  <section class="day-section" id="day-7"><div class="day-header"><div class="day-badge" style="background:var(--green)"><span class="num">8</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 8</h2><div class="day-meta">Sábado, 5 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+  <!-- ═══════════════════════════════════════
+       DÍA 8 · 5 sep
+  ════════════════════════════════════════ -->
+  <section class="day-section" id="day-7">
+    <div class="day-header">
+      <div class="day-badge" style="background:var(--green)"><span class="num">8</span><span class="lbl">Día</span></div>
+      <div class="day-title"><h2>Día 8</h2><div class="day-meta">Sábado, 5 de septiembre</div><span class="city-tag">Ciudad ?</span></div>
+    </div>
+    <div class="cards-wrap"><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></div>
+  </section>
 
-  <section class="day-section" id="day-8"><div class="day-header"><div class="day-badge"><span class="num">9</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 9</h2><div class="day-meta">Domingo, 6 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+  <!-- ═══════════════════════════════════════
+       DÍA 9 · 6 sep
+  ════════════════════════════════════════ -->
+  <section class="day-section" id="day-8">
+    <div class="day-header">
+      <div class="day-badge"><span class="num">9</span><span class="lbl">Día</span></div>
+      <div class="day-title"><h2>Día 9</h2><div class="day-meta">Domingo, 6 de septiembre</div><span class="city-tag">Ciudad ?</span></div>
+    </div>
+    <div class="cards-wrap"><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></div>
+  </section>
 
-  <section class="day-section" id="day-9"><div class="day-header"><div class="day-badge" style="background:var(--accent2)"><span class="num">10</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 10</h2><div class="day-meta">Lunes, 7 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+  <!-- ═══════════════════════════════════════
+       DÍA 10 · 7 sep
+  ════════════════════════════════════════ -->
+  <section class="day-section" id="day-9">
+    <div class="day-header">
+      <div class="day-badge" style="background:var(--accent2)"><span class="num">10</span><span class="lbl">Día</span></div>
+      <div class="day-title"><h2>Día 10</h2><div class="day-meta">Lunes, 7 de septiembre</div><span class="city-tag">Ciudad ?</span></div>
+    </div>
+    <div class="cards-wrap"><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></div>
+  </section>
 
-  <section class="day-section" id="day-10"><div class="day-header"><div class="day-badge" style="background:#7c5cd8"><span class="num">11</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 11</h2><div class="day-meta">Martes, 8 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+  <!-- ═══════════════════════════════════════
+       DÍA 11 · 8 sep
+  ════════════════════════════════════════ -->
+  <section class="day-section" id="day-10">
+    <div class="day-header">
+      <div class="day-badge" style="background:#7c5cd8"><span class="num">11</span><span class="lbl">Día</span></div>
+      <div class="day-title"><h2>Día 11</h2><div class="day-meta">Martes, 8 de septiembre</div><span class="city-tag">Ciudad ?</span></div>
+    </div>
+    <div class="cards-wrap"><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></div>
+  </section>
 
-  <section class="day-section" id="day-11"><div class="day-header"><div class="day-badge" style="background:var(--green)"><span class="num">12</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 12</h2><div class="day-meta">Miércoles, 9 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+  <!-- ═══════════════════════════════════════
+       DÍA 12 · 9 sep
+  ════════════════════════════════════════ -->
+  <section class="day-section" id="day-11">
+    <div class="day-header">
+      <div class="day-badge" style="background:var(--green)"><span class="num">12</span><span class="lbl">Día</span></div>
+      <div class="day-title"><h2>Día 12</h2><div class="day-meta">Miércoles, 9 de septiembre</div><span class="city-tag">Ciudad ?</span></div>
+    </div>
+    <div class="cards-wrap"><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></div>
+  </section>
 
-  <section class="day-section" id="day-12"><div class="day-header"><div class="day-badge"><span class="num">13</span><span class="lbl">Día</span></div><div class="day-title"><h2>Día 13</h2><div class="day-meta">Jueves, 10 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+  <!-- ═══════════════════════════════════════
+       DÍA 13 · 10 sep
+  ════════════════════════════════════════ -->
+  <section class="day-section" id="day-12">
+    <div class="day-header">
+      <div class="day-badge"><span class="num">13</span><span class="lbl">Día</span></div>
+      <div class="day-title"><h2>Día 13</h2><div class="day-meta">Jueves, 10 de septiembre</div><span class="city-tag">Ciudad ?</span></div>
+    </div>
+    <div class="cards-wrap"><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></div>
+  </section>
 
-  <section class="day-section" id="day-13"><div class="day-header"><div class="day-badge" style="background:var(--accent2)"><span class="num">14</span><span class="lbl">Día</span></div><div class="day-title"><h2>Penúltimo día 🌇</h2><div class="day-meta">Viernes, 11 de septiembre</div><span class="city-tag">Ciudad ?</span></div></div><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></section>
+  <!-- ═══════════════════════════════════════
+       DÍA 14 · 11 sep
+  ════════════════════════════════════════ -->
+  <section class="day-section" id="day-13">
+    <div class="day-header">
+      <div class="day-badge" style="background:var(--accent2)"><span class="num">14</span><span class="lbl">Día</span></div>
+      <div class="day-title"><h2>Penúltimo día 🌇</h2><div class="day-meta">Viernes, 11 de septiembre</div><span class="city-tag">Ciudad ?</span></div>
+    </div>
+    <div class="cards-wrap"><div class="card"><div class="card-label">Actividades</div><div class="placeholder"><div class="icon">📌</div><p>Agrega el plan aquí.</p></div></div></div>
+  </section>
 
-  <!-- DÍA 15 -->
+  <!-- ═══════════════════════════════════════
+       DÍA 15 · 12 sep · MAD → SJO
+  ════════════════════════════════════════ -->
   <section class="day-section" id="day-14">
     <div class="day-header">
       <div class="day-badge" style="background:#7c5cd8"><span class="num">15</span><span class="lbl">Día</span></div>
       <div class="day-title">
         <h2>Regreso a casa 🏠✈️</h2>
-        <div class="day-meta">Sábado, 12 de septiembre · Vuelta</div>
+        <div class="day-meta">Sábado, 12 de septiembre · Vuelo de regreso</div>
         <span class="city-tag">Madrid → San José</span>
       </div>
     </div>
+    <div class="cards-wrap">
 
-    <!-- Vuelo regreso: MAD → SJO -->
-    <div class="card">
-      <div class="card-label">Vuelo · IB0243</div>
-      <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
-        <div class="transport-badge">✈️ IB0243</div>
-        <span style="font-size:0.8rem; color:var(--muted)">Reserva: <strong style="color:var(--text)">N7GVQ</strong></span>
-        <span style="font-size:0.8rem; color:var(--muted)">Equipaje: <strong style="color:var(--muted)">0PC (incluido en tarifa)</strong></span>
+      <div class="card">
+        <div class="card-label">Vuelo IB0243 · Madrid → San José</div>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
+          <div class="transport-badge">✈️ IB0243</div>
+          <span style="font-size:0.8rem; color:var(--muted)">Reserva: <strong style="color:var(--text)">N7GVQ</strong></span>
+          <span style="font-size:0.8rem; color:var(--muted)">Equipaje: <strong style="color:var(--muted)">0PC (incluido en tarifa)</strong></span>
+        </div>
+        <ul class="activity-list">
+          <li>
+            <span class="activity-time">Mañana</span>
+            <span class="activity-dot pink"></span>
+            <span>Check-out del hotel y traslado al aeropuerto</span>
+          </li>
+          <li>
+            <span class="activity-time">11:30</span>
+            <span class="activity-dot"></span>
+            <span>Salida · <a href="https://www.google.com/maps/place/Aeropuerto+Adolfo+Suárez+Madrid-Barajas/@40.4983,-3.5676,15z" target="_blank" style="color:var(--accent)">Aeropuerto Adolfo Suárez Madrid-Barajas (MAD)</a> · Terminal</span>
+          </li>
+          <li>
+            <span class="activity-time">14:35</span>
+            <span class="activity-dot green"></span>
+            <span>Llegada · <a href="https://www.google.com/maps/place/Aeropuerto+Internacional+Juan+Santamaría/@9.9938,-84.2088,15z" target="_blank" style="color:var(--accent)">Aeropuerto Juan Santamaría, San José (SJO)</a> · Terminal M</span>
+          </li>
+        </ul>
       </div>
-      <ul class="activity-list">
-        <li>
-          <span class="activity-time">Mañana</span>
-          <span class="activity-dot pink"></span>
-          <span>Check-out del hotel y traslado al aeropuerto</span>
-        </li>
-        <li>
-          <span class="activity-time">11:30</span>
-          <span class="activity-dot"></span>
-          <span>
-            Salida · <a href="https://www.google.com/maps/place/Aeropuerto+Adolfo+Suárez+Madrid-Barajas/@40.4983,-3.5676,15z" target="_blank" style="color:var(--accent)">Aeropuerto Adolfo Suárez Madrid-Barajas (MAD)</a>
-            · Terminal
-          </span>
-        </li>
-        <li>
-          <span class="activity-time">14:35</span>
-          <span class="activity-dot green"></span>
-          <span>
-            Llegada · <a href="https://www.google.com/maps/place/Aeropuerto+Internacional+Juan+Santamaría/@9.9938,-84.2088,15z" target="_blank" style="color:var(--accent)">Aeropuerto Juan Santamaría, San José (SJO)</a>
-            · Terminal M
-          </span>
-        </li>
-      </ul>
-    </div>
 
-    <!-- Pasajeros -->
-    <div class="card">
-      <div class="card-label">Pasajeros</div>
-      <ul class="activity-list">
-        <li><span class="activity-time"></span><span class="activity-dot"></span><span>Jean Carlo Barboza Jiménez · Ticket: 075-2537698482</span></li>
-        <li><span class="activity-time"></span><span class="activity-dot pink"></span><span>Silvana Hernández López · Ticket: 075-2537698483</span></li>
-      </ul>
-    </div>
+      <div class="card">
+        <div class="card-label">Pasajeros</div>
+        <ul class="activity-list">
+          <li><span class="activity-time"></span><span class="activity-dot"></span><span>Jean Carlo Barboza Jiménez · Ticket: 075-2537698482</span></li>
+          <li><span class="activity-time"></span><span class="activity-dot pink"></span><span>Silvana Hernández López · Ticket: 075-2537698483</span></li>
+        </ul>
+      </div>
 
-    <div class="tip-box">
-      <span class="tip-icon">💛</span>
-      <span>¡Fin del viaje! No olvidar llenar la declaración de aduana antes de aterrizar en SJO. Recuerdos guardados para siempre. 🎉</span>
+      <div class="tip-box">
+        <span class="tip-icon">💛</span>
+        <span>¡Fin del viaje! No olvidar llenar la declaración de aduana antes de aterrizar en SJO. Recuerdos guardados para siempre. 🎉</span>
+      </div>
+
     </div>
   </section>
 
@@ -421,15 +500,5 @@
   Europa 2026 · 29 ago – 12 sep · <strong>¡Buen viaje!</strong>
 </footer>
 
-<script>
-  function showDay(index, btn) {
-    document.querySelectorAll('.day-section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('day-' + index).classList.add('active');
-    btn.classList.add('active');
-    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-</script>
 </body>
 </html>
